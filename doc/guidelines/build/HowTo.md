@@ -63,11 +63,35 @@ pandoc -S -o Guidelines_EnergyADE.pdf \
 
 ## Footnotes
 
-Footnotes are defined as standard markdown footnotes. Type `[^1]` to add a
-footnote with reference to label `^1`. Each footnote needs a reference, e.g: 
-`[^1]: [citygml-energy](https://github.com/cstb/citygml-energy)`.
+Footnotes are defined as standard markdown footnotes. Type `[WaterML ADE][]` to add a
+footnote with reference to label `WaterML ADE`. Each footnote needs a reference, e.g:  
+`[WaterML ADE]: http://def.seegrid.csiro.au/sissvoc/ogc-def/resource?uri=http://www.opengis.net/def/waterml/2.0/interpolationType/ "WaterML ADE"`  
 It is good practice to have all footnotes in the same place, this is normally the
 end of the document. 
+
+## Cross References
+
+### Figures
+
+To do a cross reference to a figure you have to define a `\label` first:
+
+```
+![This is the caption\label{mylabel}](/url/of/image.png)
+```
+
+Now you can use the **label** to crate a cross reference with normal latex
+syntax: 
+
+```
+See figure \ref{mylabel}.
+```
+
+Source: http://stackoverflow.com/questions/9434536/how-do-i-make-a-reference-to-a-figure-in-markdown-using-pandoc
+
+### Sections
+
+You can make reference to any section just by using the section name, e.g:
+`[Sections][]` make a reference to section with name [Sections][].
 
 ## Citations
 
