@@ -2,29 +2,60 @@
 
 ## Motivation and design objectives
 
-The CityGML Energy Application Domain Extension (Energy ADE) aims at extending the CityGML 2.0 standard with energy-related entities and attributes necessary to perform energy analyses at urban scale, such as energy demand diagnostics, solar potential study, simulation of low-carbon energy strategies etc...
+The CityGML Energy Application Domain Extension (Energy ADE) aims at extending
+the CityGML 2.0 standard with energy-related entities and attributes necessary
+to perform energy analyses at urban scale, such as energy demand diagnostics,
+solar potential study, simulation of low-carbon energy strategies etc...
 
-In accordance with the philosophy of CityGML, the Energy ADE aims to be flexible in terms of compatibility with different data qualities and levels of details. His design is driven by the following objectives : 
-- store and manage energy-related data collected at urban scale, based on the standard data specification of INSPIRE Directive of the European Parliament, as well as the recent US Building Energy Data Exchange Specification (BEDES). 
-- provide information data required by different urban energy models and simulation (e.g. from standard energy balance methods as of ISO 13790, to sub-hourly dynamic simulations by means of software programs like CitySim or EnergyPlus)
+In accordance with the philosophy of CityGML, the Energy ADE aims to be
+flexible in terms of compatibility with different data qualities and levels of
+details.
+His design is driven by the following objectives:
+
+- store and manage energy-related data collected at urban scale, based on the
+  standard data specification of INSPIRE Directive of the European Parliament,
+  as well as the recent US Building Energy Data Exchange Specification (BEDES).
+
+- provide information data required by different urban energy models and
+  simulation (e.g. from standard energy balance methods as of ISO 13790, to
+  sub-hourly dynamic simulations by means of software programs like CitySim or
+  EnergyPlus)
 
 ## General structure overview
 
-Its structure is conceived to be modular, so as to be potentially used and extended also for other applications (e.g. module Occupancy for socio-economics, module Construction and Materials for acoustics or statics, etc). It consists of 5 modules:
+Its structure is conceived to be modular, so as to be potentially used and
+extended also for other applications (e.g. module Occupancy for
+socio-economics, module Construction and Materials for acoustics or statics,
+etc).
+It consists of 5 modules:
+
 - Building Physics module,
 - Occupancy module,
 - Construction and Material module,
 - Energy Use and System module,
 - Timeseries and Schedules module.
 
-The Building Physics module is the core of the Energy ADE. It extends the existing CityGML objects (Abstract Building, BoundarySurface and Opening) and relate them to new thermal entities (ThermalZone, ThermalBoundary, resp. ThermalComponent). Its central object is the ThermalZone, which is the volume unit for heat/cool energy demand calculation.
+The Building Physics module is the core of the Energy ADE. It extends the
+existing CityGML objects (Abstract Building, BoundarySurface and Opening) and
+relate them to new thermal entities (ThermalZone, ThermalBoundary, resp.
+ThermalComponent).
+Its central object is the ThermalZone, which is the volume unit for heat/cool
+energy demand calculation.
 
-The Occupancy module is related to the CityGML model (AbstractBuilding) and Building Physics Module (ThermalZone) through its central object : UsageZone. The latter is the spatial unit for user-depending energy use study (e.g. domestic hot water, electrical appliances) and can provide usage boundary conditions for the heat/cool energy demand calculations.
+The Occupancy module is related to the CityGML model (AbstractBuilding) and
+Building Physics Module (ThermalZone) through its central object : UsageZone.
+The latter is the spatial unit for user-depending energy use study (e.g.
+domestic hot water, electrical appliances) and can provide usage boundary
+conditions for the heat/cool energy demand calculations.
 
-The Construction and Material, Energy Use and System, and Timeseries and Schedules modules are independant « floating modules » which may be connected to different CityGML and Energy ADE CityObjects. 
+The Construction and Material, Energy Use and System, and Timeseries and
+Schedules modules are independant « floating modules » which may be connected
+to different CityGML and Energy ADE CityObjects.
 
-
-This document is intended to explain the characteristics and purposes of each module, their entities and attributes. It provides also a number of XML examples, illustrating how and where the Energy ADE entities and attributes may be embedded into CityGML.
+This document is intended to explain the characteristics and purposes of each
+module, their entities and attributes.
+It provides also a number of XML examples, illustrating how and where the
+Energy ADE entities and attributes may be embedded into CityGML.
 
 # Building Physics Module
 
@@ -32,22 +63,42 @@ This document is intended to explain the characteristics and purposes of each mo
 
 ![Class diagram of Building Physics Module](fig/class_geometry.png)
 
-Main purpose of this module is building thermal modeling (e.g. calculation of space heating and space cooling demands).
+Main purpose of this module is building thermal modeling (e.g. calculation of
+space heating and space cooling demands).
 
-Thus, it extends the existing CityGML objects `_AbstractBuilding`, `_BoundarySurface`and `_Opening` with energy-related attributes, and define new thermal building objects `ThermalZone`, `ThermalBoundary`, respectively `ThermalComponent` related to them.
+Thus, it extends the existing CityGML objects `_AbstractBuilding`,
+`_BoundarySurface`and `_Opening` with energy-related attributes, and define new
+thermal building objects `ThermalZone`, `ThermalBoundary`, respectively
+`ThermalComponent` related to them.
 
-The `ThermalZone `is the unit volume for heating and cooling demand calculation. A Building may have several `ThermalZone`, for instance in the case of mixed-usage building, or to distinguish rooms or zones with different orientations (i.e. solar gains) and/or thermal behaviour.
+The `ThermalZone `is the unit volume for heating and cooling demand
+calculation.
+A Building may have several `ThermalZone`, for instance in the case of
+mixed-usage building, or to distinguish rooms or zones with different
+orientations (i.e. solar gains) and/or thermal behaviour.
 
-These `ThermalZone` objects are separated from each other and from the outside by `ThermalBoundary` objects. These `ThermalBoundary` objects may or not correspond to the CityGML `_BoundarySurface`. To count the `globalSolarIrradiance` incident on `_BoundarySurface` in the building energy balance, every `ThermalBoundary` delimiting the `ThermalZone` from outside should however be related (relation `correspondsTo`) with a `_BoundarySurface`.
+These `ThermalZone` objects are separated from each other and from the outside
+by `ThermalBoundary` objects.
+These `ThermalBoundary` objects may or not correspond to the CityGML
+`_BoundarySurface`.
+To count the `globalSolarIrradiance` incident on `_BoundarySurface` in the
+building energy balance, every `ThermalBoundary` delimiting the `ThermalZone`
+from outside should however be related (relation `correspondsTo`) with a
+`_BoundarySurface`.
 
-If occupied, a `ThermalZone` must be related to at less 1 `UsageZone`, which contains the usage boundary conditions required for the heating and cooling demand calculation (see Occupancy Module). One `ThermalZone` may be related to several `UsageZone` for simplified modelling of mixed-usage space, in which case the usage boundary conditions of the `UsageZone` should be aggregated or weighted
-according with their floorArea.
+If occupied, a `ThermalZone` must be related to at less 1 `UsageZone`, which
+contains the usage boundary conditions required for the heating and cooling
+demand calculation (see Occupancy Module).
+One `ThermalZone` may be related to several `UsageZone` for simplified
+modelling of mixed-usage space, in which case the usage boundary conditions of
+the `UsageZone` should be aggregated or weighted according with their
+floorArea.
 
 ## Extension of CityGML building objects
 
 ### \_AbstractBuilding
 
-The Energy ADE extends the CityGML _AbstractBuilding by a number of
+The Energy ADE extends the CityGML `_AbstractBuilding` by a number of
 energy-related attributes, e.g with regards to the geometrical characteristics
 (`referencePoint`, `averageCeilingHeight`, `eavesHeight`, `ridgeHeight`,
 `basementCeilingHeightAboveGrounSurface`, `floorArea`, `grossVolume`), to the
@@ -92,9 +143,9 @@ some of its Energy ADE attributes.
  </energy:refurbishmentMeasureOnBuilding>
  <energy:averageCeilingHeight uom="m">2.7</energy:averageCeilingHeight>
  <energy:atticType>Conditioned</energy:atticType>
- 
+
  <!--Here may come a list of UsageZone of the building (see Module Occupancy) -->
- 
+
  <energy:ridgeHeight uom="m">10.5</energy:ridgeHeight>
  <energy:landmarked>false</energy:landmarked>
  <energy:floorArea>
@@ -103,7 +154,7 @@ some of its Energy ADE attributes.
  <energy:eavesHeight uom="m">8</energy:eavesHeight>
  <energy:constructionStyle>Massive</energy:constructionStyle>
  <energy:buildingType>MultiFamilyHouse</energy:buildingType>
- 
+
  <!--Here follow all ThermalZone objects, each inside a "thermalZones" tag-->
  <energy:thermalZones>
   <energy:ThermalZone gml:id="id_thermalzone_1">
@@ -550,8 +601,10 @@ explicit geometry are given.
 
 A `ThermalComponent` object is a part of the thermal boundary corresponding to
 a homogeneous construction component (e.g. windows, wall, insulated part of a
-wall etc.) and either entirely above or below the terrain. 
-Each `ThermalComponent` must be characterized with its `Area`, and its position relative to the Terrain (attribute `relativeToTerrain` which it inherits from `_CityObject`).
+wall etc.) and either entirely above or below the terrain.
+Each `ThermalComponent` must be characterized with its `Area`, and its position
+relative to the Terrain (attribute `relativeToTerrain` which it inherits from
+`_CityObject`).
 
 Since `ThermalComponent` inherits from `_CityObject`, it can also be associated to a
 `Construction` object (see module Construction and Material). This may be done
@@ -580,7 +633,7 @@ calculate the heating and cooling demand.
 	      		<energy:area uom="m^2">10.0</energy:area>
 	      		<energy:relates xlink:href="#opening_window_1"/>
     		</energy:ThermalComponent>
-  	</energy:composedOf>				
+  	</energy:composedOf>
 </energy:ThermalBoundary>
 ```
 
@@ -600,7 +653,7 @@ come (as Dynamizer).
 ![Class diagram of ADE Energy Core - Time Series](fig/class_time.png)
 
 Time series are homogeneous lists of time-depending values. They are used in
-the Energy ADE to store energy amount or an occupancy schedule, for instance. 
+the Energy ADE to store energy amount or an occupancy schedule, for instance.
 
 All time series share some common properties, gathered in the
 `TimeValuesProperties` type object. This object specifies optionally the
@@ -845,13 +898,13 @@ consists of a unique time series, without patterns.
 
 The Construction and Material module of the ADE Energy characterizes physically
 the building construction parts, detailing their structure and specifiying
-their thermal and optical properties. 
+their thermal and optical properties.
 
 As its central object `Construction` inherits from class `_CityObject`, all
 similar objects, can be described by means of construction and materials.
 
 Given that the nature of this module is not domain-specific, it can be used
-beyond energy-related applications (e.g. in statics, acoustics etc.) 
+beyond energy-related applications (e.g. in statics, acoustics etc.).
 
 ## Construction
 
@@ -985,7 +1038,7 @@ three layers.
 The materials are referenced with xlinks (the material characterization of
 ID_Material_Concrete follows in the paragrap Material).
 
-```xml                   
+```xml
 <!--Example of a three layered construction-->
 <energy:Construction gml:id="ThreeLayeredMaterial">
 
@@ -999,7 +1052,7 @@ ID_Material_Concrete follows in the paragrap Material).
    </energy:layerComponent>
   </energy:Layer>
  </energy:layer>
- 
+
   <energy:layer>
   <energy:Layer>
    <energy:layerComponent>
@@ -1010,7 +1063,7 @@ ID_Material_Concrete follows in the paragrap Material).
    </energy:layerComponent>
   </energy:Layer>
  </energy:layer>
- 
+
  <energy:layer>
   <energy:Layer>
    <energy:layerComponent>
@@ -1051,7 +1104,7 @@ capacity.
         </energy:SolidMaterial>
 </energy:material>
 ```
- 
+
 ### Gas
 
 `Gas` is the class of materials whose mass and heat capacity are neglectable in
@@ -1081,11 +1134,22 @@ allows to store, the Occupancy Module may be used also for multi-field analysis
 
 ## Usage zones and building units
 
-`UsageZone` and `BuildingUnit` are the two occupancy-related spatial partitions of a building in the CityGML Energy ADE.
-A mixed-use building will be modelled with several `UsageZone`. Each of this `UsageZone` may contain several `BuildingUnit`, related to the premises (dwellings, offices etc.) located inside the defined `UsageZone`.
+`UsageZone` and `BuildingUnit` are the two occupancy-related spatial partitions
+of a building in the CityGML Energy ADE.
+A mixed-use building will be modelled with several `UsageZone`. Each of this
+`UsageZone` may contain several `BuildingUnit`, related to the premises
+(dwellings, offices etc.) located inside the defined `UsageZone`.
 
-The picture below illustrates this concept, showing a mixed-use building corresponding to a single Building entity in a CityGML model file (although several real adresses).
-It consists in 3 different uses : company office on the first floor at the left of the main entrance, residential on the first floor in the opposite side of the building, and a post office covering the whole ground floor and the part of the first floor just above the main entrance ("Post"). Both `UsageZone` of type office and residential have two `BuildingUnit`, corresponding to different private offices ("O1" and "O2"), respectively different dwellings ("D1" and "D2").
+The picture below illustrates this concept, showing a mixed-use building
+corresponding to a single Building entity in a CityGML model file (although
+several real adresses).
+It consists in 3 different uses : company office on the first floor at the left
+of the main entrance, residential on the first floor in the opposite side of
+the building, and a post office covering the whole ground floor and the part of
+the first floor just above the main entrance ("Post").
+Both `UsageZone` of type office and residential have two `BuildingUnit`,
+corresponding to different private offices ("O1" and "O2"), respectively
+different dwellings ("D1" and "D2").
 
 ![3D representation of mixed-use building](fig/UsageZoneBuildingUnitExample.png)
 
@@ -1105,12 +1169,12 @@ The CityGML+Energy ADE model of this example is detailed below:
 			<!-- Further attributes of usage zone "Offices" -->
 			<energy:contains>
 				<energy:BuildingUnit gml:id="O1">
-					<!-- Further attributes of building unit "O1" -->	
+					<!-- Further attributes of building unit "O1" -->
 				</energy:BuildingUnit>
 			</energy:contains>
 			<energy:contains>
 				<energy:BuildingUnit gml:id="O2">
-					<!-- Further attributes of building unit "O2" -->	
+					<!-- Further attributes of building unit "O2" -->
 				</energy:BuildingUnit>
 			</energy:contains>
 		</energy:UsageZone>
@@ -1121,12 +1185,12 @@ The CityGML+Energy ADE model of this example is detailed below:
 			<!-- Further attributes of usage zone "Dwellings" -->
 			<energy:contains>
 				<energy:BuildingUnit gml:id="D1">
-					<!-- Further attributes of building unit "D1" -->	
+					<!-- Further attributes of building unit "D1" -->
 				</energy:BuildingUnit>
 			</energy:contains>
 			<energy:contains>
 				<energy:BuildingUnit gml:id="D2">
-					<!-- Further attributes of building unit "D2" -->	
+					<!-- Further attributes of building unit "D2" -->
 				</energy:BuildingUnit>
 			</energy:contains>
 		</energy:UsageZone>
@@ -1225,8 +1289,11 @@ TODO: Add examples of cooling, heating and ventilation schedules.
 
 ### BuildingUnit
 
-A `BuildingUnit` is a part of a `UsageZone` which can be defined as a subdivision of a Building with its own lockable access from the outside or from a common area (i.e. not from another BuildingUnit), which is atomic, functionally independent, and
-may be separately sold, rented out, inherited, etc (source: INSPIRE Data Specification Buildings, v3.0, p.29). 
+A `BuildingUnit` is a part of a `UsageZone` which can be defined as a
+subdivision of a Building with its own lockable access from the outside or from
+a common area (i.e. not from another BuildingUnit), which is atomic,
+functionally independent, and may be separately sold, rented out, inherited,
+etc (source: INSPIRE Data Specification Buildings, v3.0, p.29).
 It inherits from class `_CityObject`.
 
 ```xml
@@ -1449,7 +1516,7 @@ The XML examples below detail the two end-uses of a same building.
 			<energy:maximumLoad uom="kW">8.0</energy:maximumLoad>
 		</energy:EnergyDemand>
 	</energy:energyDemands>
-	
+
 	<energy:energyDemands>
 		<energy:EnergyDemand>
 			<energy:endUse>ElectricalAppliances</energy:endUse>
@@ -1494,8 +1561,10 @@ An enumeration list of dsitribution types that are supplied by `EnergyDistributi
 
 ### ThermalDistributionSystem
 
-Type for thermal distribution systems with attributes for circulation `isCirculation`
-(circulating system or not), the used medium of `MediumType`, `nominalFlow`, `returnTemperature` and `supplyTemperature` and `thermalLossesFactor`.
+Type for thermal distribution systems with attributes for circulation
+`isCirculation` (circulating system or not), the used medium of `MediumType`,
+`nominalFlow`, `returnTemperature` and `supplyTemperature` and
+`thermalLossesFactor`.
 
 ```xml
 <energy:energyDistribution>
@@ -1535,18 +1604,22 @@ This enumeration list is a collection of medium types:
 
 ### ServiceLife
 
-Type to describe the service life for lifecycle analysis. It contains of attributes to describe `lifeExpectancy`, `mainMaintenanceInterval` and `startOfLife`.
+Type to describe the service life for lifecycle analysis. It contains of
+attributes to describe `lifeExpectancy`, `mainMaintenanceInterval` and
+`startOfLife`.
 
 ### StorageSystem
 
-System storing energy. A same storage may store the energy of different
-end-users and different end uses. Power and Thermal storage systems are
-differentiated, all share a service life described by `ServiceLife` type. An `EnergyDemand` can have several `StorageSystems`. 
+System storing energy.
+A same storage may store the energy of different end-users and different end uses.
+Power and Thermal storage systems are differentiated, all share a service life
+described by `ServiceLife` type.
+An `EnergyDemand` can have several `StorageSystems`.
 
 ### ThermalStorageSystem
 
-Thermal storages with a `medium` of `MediumType`, `preparationTemperature`, `thermalLossesFactor`
-and a `volume`of type `Volume`.
+Thermal storages with a `medium` of `MediumType`, `preparationTemperature`,
+`thermalLossesFactor` and a `volume`of type `Volume`.
 
 ```xml
 <energy:storage>
@@ -1577,19 +1650,19 @@ Electrical storages with a string to describe the `batteryTechnology` and a `pow
 ### EnergyConversionSystem
 
 System converting an energy source into the energy necessary to satisfy the
-`EnergyDemand` (or to feed the networks). It is the central element describing 
+`EnergyDemand` (or to feed the networks). It is the central element describing
 energy conversion.
 
-`EnergyConversionSystem` have common parameters regarding technical properties 
-(`efficiencyIndicator`, `installedNominalPower`, `nominalEfficiency` 
-(in reference to an efficiency indicator)) and general properties 
-(`yearOfManufacture`, `model` (name of the model), `number` (a serial number), 
-`productAndInstallationDocument` (a reference to manufacturer's installation documents 
-and optionally refurbishment measures) and `refurbishmentMeasureOnEnergySystem`). 
-They may be one or more (in this case, the nominal installed power corresponds to 
+`EnergyConversionSystem` have common parameters regarding technical properties
+(`efficiencyIndicator`, `installedNominalPower`, `nominalEfficiency`
+(in reference to an efficiency indicator)) and general properties
+(`yearOfManufacture`, `model` (name of the model), `number` (a serial number),
+`productAndInstallationDocument` (a reference to manufacturer's installation documents
+and optionally refurbishment measures) and `refurbishmentMeasureOnEnergySystem`).
+They may be one or more (in this case, the nominal installed power corresponds to
 the totality).
 
-`EnergyConversionSystem` features several specific energy conversion systems that 
+`EnergyConversionSystem` features several specific energy conversion systems that
 may have in addition specific parameters:
 
 A same system may have several operation modes (e.g. heat pump covering heating
@@ -1605,21 +1678,24 @@ substations. Adds attributes for network ID and network node ID.
 Subtype of `EnergyConversionSystem` for heat pumps to add carnot efficiency and
 heat source. Heat source is described using a `HeatSourceType`.
 
-In the following example, a 5 kW heat pump is described with a technical efficiency of 0.4 and a carnot efficiency defined between the source and target temperatures 2°C and 35°C. The heat pump depicted satisfies the EnergyDemand.
+In the following example, a 5 kW heat pump is described with a technical
+efficiency of 0.4 and a carnot efficiency defined between the source and target
+temperatures $2\degree{C}$ and $35\degree{C}$.
+The heat pump depicted satisfies the EnergyDemand.
 
 ```xml
 <!--Heat pump satisfying an EnergyDemand -->
-				<energy:EnergyDemand>
-					...
-					<energy:isProvidedBy>
-						<energy:HeatPump>
-							<energy:installedNominalPower uom="W">5000</energy:installedNominalPower>
-							<energy:nominalEfficiency uom="ratio">0.4</energy:nominalEfficiency>
-							<energy:carnotEfficiency>9.27166667</energy:carnotEfficiency>
-							<energy:heatSource>VerticalGroundCollector</energy:heatSource>
-						</energy:HeatPump>
-					</energy:isProvidedBy>
-				</energy:EnergyDemand>
+<energy:EnergyDemand>
+    ...
+    <energy:isProvidedBy>
+        <energy:HeatPump>
+            <energy:installedNominalPower uom="W">5000</energy:installedNominalPower>
+            <energy:nominalEfficiency uom="ratio">0.4</energy:nominalEfficiency>
+            <energy:carnotEfficiency>9.27166667</energy:carnotEfficiency>
+            <energy:heatSource>VerticalGroundCollector</energy:heatSource>
+        </energy:HeatPump>
+    </energy:isProvidedBy>
+</energy:EnergyDemand>
 ```
 
 ### HeatSourceType
@@ -1644,28 +1720,30 @@ describing the technology type.
 
 ### Boiler
 
-Subtype of `EnergyConversionSystem` for boiler. Defines if it is a condensation
-boiler or not. The following example defines a 5 kW condensation gas boiler with an efficiency of 96%.
+Subtype of `EnergyConversionSystem` for boiler.
+Defines if it is a condensation boiler or not.  The following example defines a
+5 kW condensation gas boiler with an efficiency
+of 96%.
 
 ```xml
 <!--Boiler satisfying an EnergyDemand -->
-				<energy:EnergyDemand>
-					...
-					<energy:isProvidedBy>
-						<energy:Boiler>
-							<energy:installedNominalPower uom="W">5000</energy:installedNominalPower>
-							<energy:nominalEfficiency uom="ratio">0.96</energy:nominalEfficiency>
-							<energy:condensation>true</energy:condensation>
-						</energy:Boiler>
-					</energy:isProvidedBy>
-				</energy:EnergyDemand>
+<energy:EnergyDemand>
+    ...
+    <energy:isProvidedBy>
+        <energy:Boiler>
+            <energy:installedNominalPower uom="W">5000</energy:installedNominalPower>
+            <energy:nominalEfficiency uom="ratio">0.96</energy:nominalEfficiency>
+            <energy:condensation>true</energy:condensation>
+        </energy:Boiler>
+    </energy:isProvidedBy>
+</energy:EnergyDemand>
 ```
 
 ### SolarEnergySystem
 
 Subclass of `EnergyConversionSystem` for solar energy systems. Has attributes
-for collector surface, azimuth and inclination. Differentiates into solar
-thermal and photovoltaic systems.
+for collector surface, azimuth and inclination.
+Differentiates into solar thermal and photovoltaic systems.
 
 ### SolarThermalSystem
 
@@ -1677,7 +1755,9 @@ the technology type.
 Subtype of `SolarEnergySystem` for photovoltaic systems. Defines the material
 type of photovoltaic cells with a string.
 
-The XML example below shows how to define a PV panel in a surface of a building. The Roof surface 'Roof_57' is equipped with a Photovoltaic system 'PV_1'.
+The XML example below shows how to define a PV panel in a surface of a
+building.
+The Roof surface 'Roof_57' is equipped with a Photovoltaic system 'PV_1'.
 
 ```xml
 <bldg:Building gml:id="Bldg-1">
@@ -1729,10 +1809,14 @@ The XML example below shows how to define a PV panel in a surface of a building.
 ### FinalEnergy
 
 Final energy consumed (and sometimes produced) by the `EnergyConversionSystem`.
-It is defined by an `energyAmount`, a time series containing the amount of consumed or produced energy,
-and an `energyCarrier` of type `EnergyCarrier`.
+It is defined by an `energyAmount`, a time series containing the amount of
+consumed or produced energy, and an `energyCarrier` of type `EnergyCarrier`.
 
-`FinalEnergy` is linked to `EnergyConversionSystem` via `produces` or `consumes`. Each `EnergyConversionSystem` can have multiple `FinalEnergies` that it consumes or produces. With `produces` and `consumes`, it is possible to link multiple `EnergyConversionSystem` if one consumes energy produced by another.
+`FinalEnergy` is linked to `EnergyConversionSystem` via `produces` or `consumes`.
+Each `EnergyConversionSystem` can have multiple `FinalEnergies` that it
+consumes or produces.
+With `produces` and `consumes`, it is possible to link multiple
+`EnergyConversionSystem` if one consumes energy produced by another.
 
 The XML example below shows a typical use of `FinalEnergy`.
 
@@ -1745,7 +1829,7 @@ The XML example below shows a typical use of `FinalEnergy`.
        <energy:carnotEfficiency>0.4</energy:carnotEfficiency>
        <energy:heatSource>VerticalGroundCollector</energy:heatSource>
        </energy:HeatPump>
-       
+
        <energy:CombinedHeatPower>
        <energy:installedNominalPower uom="W">2000</energy:installedNominalPower>
        <energy:nominalEfficiency uom="ratio">0.5</energy:nominalEfficiency>
@@ -1771,13 +1855,15 @@ The XML example below shows a typical use of `FinalEnergy`.
          </energy:energyCarrier>
         </energy:EnergySource>
        </energy:produces>
-       <energy:technologyType>Gas</energy:technologyType>       
+       <energy:technologyType>Gas</energy:technologyType>
       </energy:CombinedHeatPower>
 ```
 
 ### EnergyCarrier
 
-Energy carrier for `FinalEnergy`, described by `co2EmissionFactor` (with unit of measure), `primaryEnergyFactor` (with unit of measure and energy carrier `type`, see example.
+Energy carrier for `FinalEnergy`, described by `co2EmissionFactor` (with unit
+of measure), `primaryEnergyFactor` (with unit of measure and energy carrier
+`type`, see example.
 
 ```xml
  <energy:energyCarrier>
